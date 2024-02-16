@@ -136,3 +136,4 @@ dmypy.json
 *.iml
 *.tar
 *.log
+data-bert.npz
