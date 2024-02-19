@@ -207,10 +207,11 @@ def load_darpa(log_file=None, npz_file=None, train_ratio=0.8, split_type="unifor
     return None
 
 def main():
-    # load_darpa(log_file="201_actual.json")
-    load_darpa(npz_file="data-bert.npz")
+    load_darpa(log_file="201_actual.json")
+    # load_darpa(npz_file="data-bert.npz")
 
-main()
+if __name__ == "__main__":
+    main()
 
 
 
