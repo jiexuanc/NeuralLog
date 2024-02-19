@@ -2,20 +2,12 @@ import random
 import json
 import pandas as pd
 import numpy as np
-from collections import OrderedDict
-import re
+import torch
 from sklearn.utils import shuffle
-import pickle
-import string
-from transformers import GPT2Tokenizer, TFGPT2Model
-from transformers import BertTokenizer, TFBertModel
-from transformers import RobertaTokenizer, TFRobertaModel
-import tensorflow as tf
-import time
-from datetime import datetime
+from transformers import BertTokenizer, BertModel
 
 bert_tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
-bert_model = TFBertModel.from_pretrained('bert-base-uncased')
+bert_model = BertModel.from_pretrained('bert-base-uncased')
 
 def _split_data(x_data, y_data=None, train_ratio=0, split_type='uniform'):
     """ Split train/test data
@@ -77,9 +69,9 @@ def bert_encoder(s, no_wordpiece=0):
         words = s.split(" ")
         words = [word for word in words if word in bert_tokenizer.vocab.keys()]
         s = " ".join(words)
-    inputs = bert_tokenizer(s, return_tensors='tf', max_length=512, truncation=True)
+    inputs = bert_tokenizer(s, return_tensors='pt', max_length=512, truncation=True)
     outputs = bert_model(**inputs)
-    v = tf.reduce_mean(outputs.last_hidden_state, 1)
+    v = torch.mean(outputs.last_hidden_state, 1)
     return v[0]
 
 # Takes processed and labelled individual logs and do stuff...
@@ -158,11 +150,10 @@ def generate_sequences(df_benign:pd.DataFrame, df_malicious:pd.DataFrame, num=50
     def encoding(entry):
         if entry not in E:
             E[entry] = encoder(entry)
-
         return E[entry]
 
     # Generating malicious sequences...
-    for _ in range(n_mseq):
+    for i in range(1, n_mseq + 1):
         # Allows 20% fluctuations of malicious events 
         fluctuations = int(max_length * event_ratio * random.uniform(-0.2, 0.2))
         n_benign = max_length * (1 - event_ratio)
@@ -178,14 +169,18 @@ def generate_sequences(df_benign:pd.DataFrame, df_malicious:pd.DataFrame, num=50
         # Apply encoding to input
         series = mixed['input'].apply(encoding)
         final_df = pd.concat([final_df, pd.DataFrame.from_records([{'Sequence': series.tolist(), 'Label': 1}])], ignore_index=True)
+        if i % 5 == 0:
+            print(f"{i} malicious sequence generated")
 
-    for _ in range(n_bseq):
+    for i in range(1, n_bseq + 1):
         # Allows 5% fluctuations of benign events
         fluctuations = int(max_length * event_ratio * random.uniform(-0.05, 0.05))
         sub_b = rand_subsequence(df_benign, max_length + fluctuations)
         series = mixed['input'].apply(encoding)
         final_df = pd.concat([final_df, pd.DataFrame.from_records([{'Sequence': series.tolist(), 'Label': 0}])], ignore_index=True)
-
+        if i % 5 == 0:
+            print(f"{i} benign sequence generated")
+            
     print(f"{len(final_df)} sequences have been generated")
     print(f"{len(E)} unique messages are used in these sequences")
     
