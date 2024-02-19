@@ -54,7 +54,7 @@ def _split_data(x_data, y_data=None, train_ratio=0, split_type='uniform'):
         y_train = y_train[indexes]
     return (x_train, y_train), (x_test, y_test)
 
-def bert_encoder(s, no_wordpiece=0):
+def bert_encoder(s, no_wordpiece=0, as_numpy=True):
     """ Compute semantic vector with BERT
     Parameters
     ----------
@@ -63,7 +63,7 @@ def bert_encoder(s, no_wordpiece=0):
 
     Returns
     -------
-        np array in shape of (768,)
+        np array in shape of (768,) or tensor
     """
     if no_wordpiece:
         words = s.split(" ")
@@ -72,7 +72,10 @@ def bert_encoder(s, no_wordpiece=0):
     inputs = bert_tokenizer(s, return_tensors='pt', max_length=512, truncation=True)
     outputs = bert_model(**inputs)
     v = torch.mean(outputs.last_hidden_state, 1)
-    return v[0]
+    if as_numpy:
+        return v[0].detach().numpy()
+    else:
+        return v[0]
 
 # Takes processed and labelled individual logs and do stuff...
 def load_from_log(log_file, train_ratio=0.8, split_type='uniform', labelled=True):
@@ -137,7 +140,7 @@ About 5% of logs are malicious...
 Say i take a 30 min bucket,  7500 log bucket
 '''
 # Default parameters: num=100, max_length=7500, event_ratio=0.05, label_ratio=0.5 (balanced)
-def generate_sequences(df_benign:pd.DataFrame, df_malicious:pd.DataFrame, num=50, max_length=100, event_ratio=0.05, label_ratio=0.5):
+def generate_sequences(df_benign:pd.DataFrame, df_malicious:pd.DataFrame, num=100, max_length=100, event_ratio=0.05, label_ratio=0.5):
     E = {}
     encoder = bert_encoder
     n_bseq = int(num * (1 - label_ratio))
