@@ -6,8 +6,7 @@ import torch
 from sklearn.utils import shuffle
 from transformers import BertTokenizer, BertModel
 
-bert_tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
-bert_model = BertModel.from_pretrained('bert-base-uncased')
+
 
 def _split_data(x_data, y_data=None, train_ratio=0, split_type='uniform'):
     """ Split train/test data
@@ -137,10 +136,10 @@ About 5% of logs are malicious...
 84295 benign in 6 hours ==> 14000/h
 2051 malicious in 3 hours ==> 683/h
 
-Say i take a 30 min bucket,  7500 log bucket
+Say i take a 10 min bucket,  ~2000 log bucket
 '''
 # Default parameters: num=100, max_length=7500, event_ratio=0.05, label_ratio=0.5 (balanced)
-def generate_sequences(df_benign:pd.DataFrame, df_malicious:pd.DataFrame, num=100, max_length=100, event_ratio=0.05, label_ratio=0.5):
+def generate_sequences(df_benign:pd.DataFrame, df_malicious:pd.DataFrame, num=100, max_length=3500, event_ratio=0.05, label_ratio=0.5):
     E = {}
     encoder = bert_encoder
     n_bseq = int(num * (1 - label_ratio))
@@ -170,17 +169,18 @@ def generate_sequences(df_benign:pd.DataFrame, df_malicious:pd.DataFrame, num=10
         mixed = mix(sub_b, sub_m)
 
         # Apply encoding to input
-        series = mixed['input'].apply(encoding)
-        final_df = pd.concat([final_df, pd.DataFrame.from_records([{'Sequence': series.tolist(), 'Label': 1}])], ignore_index=True)
+        malicious_series = mixed['input'].apply(encoding)
+        final_df = pd.concat([final_df, pd.DataFrame.from_records([{'Sequence': malicious_series.tolist(), 'Label': 1}])], ignore_index=True)
         if i % 5 == 0:
             print(f"{i} malicious sequence generated")
 
     for i in range(1, n_bseq + 1):
-        # Allows 5% fluctuations of benign events
-        fluctuations = int(max_length * event_ratio * random.uniform(-0.05, 0.05))
-        sub_b = rand_subsequence(df_benign, max_length + fluctuations)
-        series = mixed['input'].apply(encoding)
-        final_df = pd.concat([final_df, pd.DataFrame.from_records([{'Sequence': series.tolist(), 'Label': 0}])], ignore_index=True)
+        # Allows 5% fluctuations of benign events -- i dont want to do padding yet...
+        # fluctuations = int(max_length * event_ratio * random.uniform(-0.05, 0))
+        fluctuations = 0
+        sub_benign = rand_subsequence(df_benign, max_length + fluctuations)
+        benign_series = sub_benign['input'].apply(encoding)
+        final_df = pd.concat([final_df, pd.DataFrame.from_records([{'Sequence': benign_series.tolist(), 'Label': 0}])], ignore_index=True)
         if i % 5 == 0:
             print(f"{i} benign sequence generated")
             
@@ -209,6 +209,8 @@ def main():
     # load_darpa(npz_file="data-bert.npz")
 
 if __name__ == "__main__":
+    bert_tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
+    bert_model = BertModel.from_pretrained('bert-base-uncased')
     main()
 
 

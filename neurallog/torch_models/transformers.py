@@ -33,10 +33,10 @@ class TransformerClassifier(nn.Module):
         x = F.softmax(self.dense2(x), dim=1)
         return x
 
-# Instantiate the model
-embed_dim = 768
-num_heads = 12
-ff_dim = 2048
-max_len = 20
-dropout = 0.1
-model = TransformerClassifier(embed_dim, ff_dim, max_len, num_heads, dropout)
+# # Instantiate the model
+# embed_dim = 768
+# num_heads = 12
+# ff_dim = 2048
+# max_len = 20
+# dropout = 0.1
+# model = TransformerClassifier(embed_dim, ff_dim, max_len, num_heads, dropout)

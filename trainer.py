@@ -5,20 +5,21 @@ import torch.optim as optim
 from torch.utils.data import DataLoader, TensorDataset
 import torch.nn as nn
 import numpy as np
+from tqdm import tqdm
 
 
 embed_dim = 768
 num_heads = 12
 ff_dim = 2048
-max_len = 100
+max_len = 3500
 dropout = 0.1
 
 if __name__ == "__main__":
 
     # Hyperparameters
-    batch_size = 32
+    batch_size = 8
     learning_rate = 1e-4
-    num_epochs = 30
+    num_epochs = 10
 
     (x_train, y_train), (x_test, y_test) = load_darpa(npz_file="data-bert.npz")
     x_train = np.array([np.array(lst) for lst in x_train])
@@ -40,12 +41,14 @@ if __name__ == "__main__":
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.Adam(model.parameters(), lr=learning_rate)
 
+    print("Training starting...")
+
     # Training loop
     for epoch in range(num_epochs):
         model.train()
         total_loss = 0.0
 
-        for inputs, labels in train_loader:
+        for inputs, labels in tqdm(train_loader, desc=f"Epoch {epoch + 1}/{num_epochs}", unit="batch"):
             optimizer.zero_grad()
             outputs = model(inputs)
             loss = criterion(outputs, labels)
