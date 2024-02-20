@@ -2,7 +2,6 @@ import random
 import json
 import pandas as pd
 import numpy as np
-import torch
 from sklearn.utils import shuffle
 from transformers import BertTokenizer, BertModel
 
@@ -139,7 +138,7 @@ About 5% of logs are malicious...
 Say i take a 10 min bucket,  ~2000 log bucket
 '''
 # Default parameters: num=100, max_length=7500, event_ratio=0.05, label_ratio=0.5 (balanced)
-def generate_sequences(df_benign:pd.DataFrame, df_malicious:pd.DataFrame, num=100, max_length=3500, event_ratio=0.05, label_ratio=0.5):
+def generate_sequences(df_benign:pd.DataFrame, df_malicious:pd.DataFrame, num=100, max_length=200, event_ratio=0.05, label_ratio=0.5):
     E = {}
     encoder = bert_encoder
     n_bseq = int(num * (1 - label_ratio))
@@ -209,6 +208,7 @@ def main():
     # load_darpa(npz_file="data-bert.npz")
 
 if __name__ == "__main__":
+    import torch
     bert_tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
     bert_model = BertModel.from_pretrained('bert-base-uncased')
     main()
