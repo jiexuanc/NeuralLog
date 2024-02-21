@@ -20,7 +20,7 @@ num_heads = 6  # Number of attention heads
 ff_dim = 256  # Hidden layer size in feed forward network inside transformer
 max_len = 200
 
-(x_train, y_train), (x_test, y_test) = load_darpa(npz_file="data-bert-normal.npz")
+(x_train, y_train), (x_test, y_test) = load_darpa(npz_file="data-secbert.npz")
 x_train = np.array([np.array(sublist) for sublist in x_train])
 # some_set = {}
 # for row in x_train:
@@ -46,7 +46,8 @@ advanced_grid = {
     'num_heads': [2, 4, 8]
 }
 
-# Best: 0.512500 using {'ff_dim': 4, 'lr': 5e-06}
+# Best: 0.512500 using {'ff_dim': 4, 'lr': 5e-06} with normal BERT
+# Best: 0.550000 using {'ff_dim': 4, 'lr': 1e-06} with secBERT
 param_grid = {
     'ff_dim': [4, 8, 16],
     'lr': [1e-6, 5e-6, 1e-5]

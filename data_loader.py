@@ -207,8 +207,12 @@ def main():
 
 if __name__ == "__main__":
     import torch
-    bert_tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
-    bert_model = BertModel.from_pretrained('bert-base-uncased')
+    # Using SecBERT instead...
+    bert_tokenizer = BertTokenizer.from_pretrained("jackaduma/SecBERT")
+    bert_model = BertModel.from_pretrained("jackaduma/SecBERT")
+
+    # bert_tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
+    # bert_model = BertModel.from_pretrained('bert-base-uncased')
     main()
 
 
