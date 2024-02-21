@@ -7,11 +7,9 @@ class TransformerBlock(nn.Module):
     def __init__(self, embed_dim, num_heads, ff_dim, rate=0.1):
         super(TransformerBlock, self).__init__()
         self.transformer_layer_1 = nn.TransformerEncoderLayer(embed_dim, num_heads, ff_dim, rate, batch_first=True)
-        self.transformer_layer_2 = nn.TransformerEncoderLayer(embed_dim, num_heads, ff_dim, rate, batch_first=True)
 
     def forward(self, inputs):
-        out = self.transformer_layer_1(inputs)
-        return self.transformer_layer_2(out)
+        return self.transformer_layer_1(inputs)
 
 class TransformerClassifier(nn.Module):
     def __init__(self, embed_dim, ff_dim, max_len, num_heads, dropout=0.1):

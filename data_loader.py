@@ -136,7 +136,7 @@ About 5% of logs are malicious...
 Say i take a 10 min bucket,  ~2000 log bucket
 '''
 # Default parameters: num=100, max_length=7500, event_ratio=0.05, label_ratio=0.5 (balanced)
-def generate_sequences(df_benign:pd.DataFrame, df_malicious:pd.DataFrame, num=100, max_length=200, event_ratio=0.05, label_ratio=0.5):
+def generate_sequences(df_benign:pd.DataFrame, df_malicious:pd.DataFrame, num=200, max_length=50, event_ratio=0.05, label_ratio=0.5):
     E = {}
     encoder = bert_encoder
     n_bseq = int(num * (1 - label_ratio))
@@ -155,8 +155,8 @@ def generate_sequences(df_benign:pd.DataFrame, df_malicious:pd.DataFrame, num=10
     for i in range(1, n_mseq + 1):
         # Allows 20% fluctuations of malicious events 
         fluctuations = int(max_length * event_ratio * random.uniform(-0.2, 0.2))
-        n_benign = max_length * (1 - event_ratio)
-        n_malicious = max_length * event_ratio
+        n_benign = int(max_length * (1 - event_ratio))
+        n_malicious = max_length - n_benign
         n_benign = int(min(n_benign + fluctuations, len(df_benign))) if n_benign + fluctuations > 0 else n_benign
         n_malicious = int(min(n_malicious - fluctuations, len(df_malicious))) if n_malicious - fluctuations > 0 else n_malicious
 
@@ -208,11 +208,11 @@ def main():
 if __name__ == "__main__":
     import torch
     # Using SecBERT instead...
-    bert_tokenizer = BertTokenizer.from_pretrained("jackaduma/SecBERT")
-    bert_model = BertModel.from_pretrained("jackaduma/SecBERT")
+    # bert_tokenizer = BertTokenizer.from_pretrained("jackaduma/SecBERT")
+    # bert_model = BertModel.from_pretrained("jackaduma/SecBERT")
 
-    # bert_tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
-    # bert_model = BertModel.from_pretrained('bert-base-uncased')
+    bert_tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
+    bert_model = BertModel.from_pretrained('bert-base-uncased')
     main()
 
 
