@@ -5,8 +5,6 @@ import numpy as np
 from sklearn.utils import shuffle
 from transformers import BertTokenizer, BertModel
 
-
-
 def _split_data(x_data, y_data=None, train_ratio=0, split_type='uniform'):
     """ Split train/test data
     Parameters
@@ -204,7 +202,7 @@ def load_darpa(log_file=None, npz_file=None, train_ratio=0.8, split_type="unifor
     return None
 
 def main():
-    load_darpa(log_file="data/201_actual.json")
+    load_darpa(log_file="data/201_FLOW_MESSAGE_actual.json")
     # load_darpa(npz_file="data-bert.npz")
 
 if __name__ == "__main__":
